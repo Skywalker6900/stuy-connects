@@ -1,0 +1,39 @@
+{
+  "expo": {
+    "name": "stuy-connects",
+    "slug": "stuy-connects",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.stuyconnects.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "package": "com.stuyconnects.app"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.468277953582-vk6eh0ub0f9ntfcovtplvos06nbuq9ho"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "77a89a62-f8ed-450a-a947-f6e13a2c31d1"
+      }
+    }
+  }
+}
