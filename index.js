@@ -1,4 +1,6 @@
 import { registerRootComponent } from 'expo';
+import React, { useEffect } from 'react';
+import { saveUserProfile } from './database';
 
 import App from './App';
 
