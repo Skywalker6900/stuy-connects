@@ -1,0 +1,72 @@
+rules_version = '2';
+
+// Paste these into Firebase console -> Firestore Database -> Rules, then Publish.
+// The app's @stuy.edu check can be bypassed by anyone with your public Firebase config,
+// so these rules are what actually keep the data school-only.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isStuy() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email.matches('.*@stuy[.]edu');
+    }
+
+    function isOwner(uid) {
+      return isStuy() && request.auth.uid == uid;
+    }
+
+    // Student profiles: any Stuy student can read, only the owner can write.
+    match /users/{uid} {
+      allow read: if isStuy();
+      allow create, update: if isOwner(uid);
+      allow delete: if false;
+    }
+
+    // Master class list: read-only from the app (add classes in the Firebase console).
+    match /classes/{classId} {
+      allow read: if isStuy();
+      allow write: if false;
+    }
+
+    // Opportunities bulletin: authors can post and delete their own posts.
+    match /posts/{postId} {
+      allow read: if isStuy();
+      allow create: if isStuy()
+        && request.resource.data.authorId == request.auth.uid
+        && request.resource.data.title is string
+        && request.resource.data.title.size() >= 3
+        && request.resource.data.title.size() <= 100
+        && request.resource.data.body is string
+        && request.resource.data.body.size() >= 3
+        && request.resource.data.body.size() <= 1000;
+      allow update: if false;
+      allow delete: if isStuy() && resource.data.authorId == request.auth.uid;
+    }
+
+    // Teacher directory: crowdsourced, add-only from the app.
+    match /teachers/{teacherId} {
+      allow read: if isStuy();
+      allow create: if isStuy()
+        && request.resource.data.authorId == request.auth.uid
+        && request.resource.data.name is string
+        && request.resource.data.name.size() <= 60
+        && request.resource.data.room is string
+        && request.resource.data.room.size() <= 20;
+      allow update, delete: if false;
+    }
+
+    // Shared study links: crowdsourced, add-only from the app.
+    match /resources/{resourceId} {
+      allow read: if isStuy();
+      allow create: if isStuy()
+        && request.resource.data.authorId == request.auth.uid
+        && request.resource.data.title is string
+        && request.resource.data.title.size() <= 100
+        && request.resource.data.url is string
+        && request.resource.data.url.matches('https?://.*')
+        && request.resource.data.url.size() <= 500;
+      allow update, delete: if false;
+    }
+  }
+}
